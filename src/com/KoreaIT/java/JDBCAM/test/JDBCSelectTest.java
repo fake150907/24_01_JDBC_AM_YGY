@@ -3,13 +3,15 @@ package com.KoreaIT.java.JDBCAM.test;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
-public class JDBCInsertTest {
+public class JDBCSelectTest {
 	public static void main(String[] args) {
 		Connection conn = null;
-		PreparedStatement pstmt = null;
-
+		PreparedStatement stmt = null;
+		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			String url = "jdbc:mysql://127.0.0.1:3306/JDBC_AM?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Seoul&useOldAliasMetadataBehavior=true&zeroDateTimeNehavior=convertToNull";
@@ -17,19 +19,26 @@ public class JDBCInsertTest {
 			conn = DriverManager.getConnection(url, "root", "");
 			System.out.println("연결 성공!");
 
-			String sql = "INSERT INTO article ";
-			sql += "SET regDate = NOW(),";
-			sql += "updateDate = NOW(),";
-			sql += "title = CONCAT('제목', RAND()),";
-			sql += "`body` = CONCAT('내용', RAND());";
+			String sql = "SELECT * FROM article;";
 
-			System.out.println(sql);
+			stmt = conn.prepareStatement(sql);
 
-			pstmt = conn.prepareStatement(sql);
+			ResultSet rs = stmt.executeQuery(sql);
+			while (rs.next()) {
+				String id = rs.getString("id");
+				String regDate = rs.getString("regDate");
+				String updateDate = rs.getString("updateDate");
+				String title = rs.getString("title");
+				String body = rs.getString("body");
 
-			int affectedRow = pstmt.executeUpdate();
+//				System.out.println("id : " + rs.getString("id"));
+//				System.out.println("regDate : " + rs.getString("regDate"));
+//				System.out.println("updateDate : " + rs.getString("updateDate"));
+//				System.out.println("title : " + rs.getString("title"));
+//				System.out.println("body : " + rs.getString("body"));
 
-			System.out.println("affectedRow : " + affectedRow);
+				System.out.printf("%s  /  %s  \n", id, title);
+			}
 
 		} catch (ClassNotFoundException e) {
 			System.out.println("드라이버 로딩 실패");
@@ -44,13 +53,12 @@ public class JDBCInsertTest {
 				e.printStackTrace();
 			}
 			try {
-				if (pstmt != null && !pstmt.isClosed()) {
-					pstmt.close();
+				if (stmt != null && !stmt.isClosed()) {
+					stmt.close();
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 		}
-
 	}
 }

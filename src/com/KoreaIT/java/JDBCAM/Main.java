@@ -3,7 +3,9 @@ package com.KoreaIT.java.JDBCAM;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -89,14 +91,77 @@ public class Main {
 
 			} else if (cmd.equals("article list")) {
 				System.out.println("==목록==");
-				if (articles.size() == 0) {
-					System.out.println("게시글이 없습니다");
-					continue;
-				}
+//				if (articles.size() == 0) {
+//					System.out.println("게시글이 없습니다");
+//					continue;
+//				}
 
 				System.out.println("  번호  /   제목  ");
-				for (Article article : articles) {
-					System.out.printf("  %d     /   %s   \n", article.getId(), article.getTitle());
+//				for (Article article : articles) {
+//					System.out.printf("  %d     /   %s   \n", article.getId(), article.getTitle());
+//				}
+				Connection conn = null;
+				PreparedStatement stmt = null;
+				ResultSet rs = null;
+				try {
+					Class.forName("com.mysql.jdbc.Driver");
+					String url = "jdbc:mysql://127.0.0.1:3306/JDBC_AM?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Seoul&useOldAliasMetadataBehavior=true&zeroDateTimeNehavior=convertToNull";
+
+					conn = DriverManager.getConnection(url, "root", "");
+					System.out.println("연결 성공!");
+
+					String sql = "SELECT * ";
+					sql += " FROM article";
+					sql += " ORDER BY id DESC;";
+
+					stmt = conn.prepareStatement(sql);
+
+					rs = stmt.executeQuery(sql);
+
+					while (rs.next()) {
+						int id = Integer.parseInt(rs.getString("id"));
+						String regDate = rs.getString("regDate");
+						String updateDate = rs.getString("updateDate");
+						String title = rs.getString("title");
+						String body = rs.getString("body");
+						Article article = new Article(id, regDate, updateDate, title, body);
+
+						articles.add(article);
+					}
+					for (int i = 0; i < articles.size(); i++) {
+						System.out.println("id : " + articles.get(i).getId());
+						System.out.println("regDate : " + articles.get(i).getRegDate());
+						System.out.println("updateDate : " + articles.get(i).getUpdateDate());
+						System.out.println("title : " + articles.get(i).getTitle());
+						System.out.println("body : " + articles.get(i).getBody());
+					}
+
+				} catch (ClassNotFoundException e) {
+					System.out.println("드라이버 로딩 실패");
+				} catch (SQLException e) {
+					System.out.println("에러 : " + e);
+				} finally {
+					try {
+						if (rs != null && !rs.isClosed()) {
+							rs.close();
+						}
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+					try {
+						if (conn != null && !conn.isClosed()) {
+							conn.close();
+						}
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+					try {
+						if (stmt != null && !stmt.isClosed()) {
+							stmt.close();
+						}
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 
