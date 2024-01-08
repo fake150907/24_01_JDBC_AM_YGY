@@ -19,10 +19,12 @@ public class App {
 			}
 
 			String[] cmdBits = cmd.split(" ");
+
 			if (cmdBits.length == 1) {
 				System.out.println("명령어를 똑바로 입력해라 인간.");
 				continue;
 			}
+
 			switch (cmdBits[1]) {
 			case "write":
 				actr.write();
@@ -39,6 +41,8 @@ public class App {
 			case "delete":
 				actr.remove();
 				break;
+			default:
+				System.out.println("처리할 수 없는 명령어입니다.");
 			}
 		}
 
