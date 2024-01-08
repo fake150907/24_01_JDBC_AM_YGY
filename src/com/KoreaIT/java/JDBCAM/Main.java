@@ -89,17 +89,75 @@ public class Main {
 					}
 				}
 
-			} else if (cmd.equals("article list")) {
-				System.out.println("==목록==");
-//				if (articles.size() == 0) {
-//					System.out.println("게시글이 없습니다");
-//					continue;
-//				}
+			} else if (cmd.startsWith("article modify")) {
+				String[] cmdDiv = cmd.split(" ");
+				if (cmdDiv.length < 3) {
+					System.out.println("명령어를 똑바로 입력해라 인간.");
+					continue;
+				}
+				int articleId = Integer.parseInt(cmdDiv[2]);
 
-				System.out.println("  번호  /   제목  ");
-//				for (Article article : articles) {
-//					System.out.printf("  %d     /   %s   \n", article.getId(), article.getTitle());
-//				}
+				Connection conn = null;
+				PreparedStatement pstmt = null;
+				ResultSet rs = null;
+				try {
+					Class.forName("com.mysql.jdbc.Driver");
+					String url = "jdbc:mysql://127.0.0.1:3306/JDBC_AM?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Seoul&useOldAliasMetadataBehavior=true&zeroDateTimeNehavior=convertToNull";
+
+					conn = DriverManager.getConnection(url, "root", "");
+					System.out.println("연결 성공!");
+
+					System.out.print("(수정)제목 : ");
+					String newTitle = sc.nextLine().trim();
+					System.out.print("(수정)내용 : ");
+					String newBody = sc.nextLine().trim();
+					String sql = "UPDATE article ";
+					sql += "SET title = " + newTitle + ",";
+					sql += "`body` = " + newBody;
+					sql += " WHERE id = " + articleId;
+
+					pstmt = conn.prepareStatement(sql);
+
+//					rs = pstmt.executeQuery(sql);
+
+					int r = pstmt.executeUpdate(sql);
+					
+					if (r > 0) {
+						System.out.println("입력 성공");
+					} else {
+						System.out.println("입력 실패");
+					}
+
+					System.out.printf("%d번 게시글이 수정되었습니다.\n", articleId);
+					
+				} catch (ClassNotFoundException e) {
+					System.out.println("드라이버 로딩 실패");
+				} catch (SQLException e) {
+					System.out.println("에러 : " + e);
+				} finally {
+					try {
+						if (rs != null && !rs.isClosed()) {
+							rs.close();
+						}
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+					try {
+						if (conn != null && !conn.isClosed()) {
+							conn.close();
+						}
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+					try {
+						if (pstmt != null && !pstmt.isClosed()) {
+							pstmt.close();
+						}
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
+			} else if (cmd.equals("article list")) {
 				Connection conn = null;
 				PreparedStatement stmt = null;
 				ResultSet rs = null;
@@ -117,6 +175,7 @@ public class Main {
 					stmt = conn.prepareStatement(sql);
 
 					rs = stmt.executeQuery(sql);
+					System.out.println("== article list ==");
 
 					while (rs.next()) {
 						int id = Integer.parseInt(rs.getString("id"));
@@ -125,15 +184,8 @@ public class Main {
 						String title = rs.getString("title");
 						String body = rs.getString("body");
 						Article article = new Article(id, regDate, updateDate, title, body);
-
+						System.out.printf("%d  /  %s  /  %s\n", id, title, regDate);
 						articles.add(article);
-					}
-					for (int i = 0; i < articles.size(); i++) {
-						System.out.println("id : " + articles.get(i).getId());
-						System.out.println("regDate : " + articles.get(i).getRegDate());
-						System.out.println("updateDate : " + articles.get(i).getUpdateDate());
-						System.out.println("title : " + articles.get(i).getTitle());
-						System.out.println("body : " + articles.get(i).getBody());
 					}
 
 				} catch (ClassNotFoundException e) {
