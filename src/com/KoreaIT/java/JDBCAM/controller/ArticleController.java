@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 public class ArticleController {
-	private Connection conn = null;
 	private PreparedStatement pstmt = null;
 	private ResultSet rs = null;
 	private int articleId;
@@ -25,7 +24,7 @@ public class ArticleController {
 		asv = new ArticleService();
 	}
 
-	public void write() {
+	public void write(Connection conn) {
 		System.out.println("==글쓰기==");
 		System.out.print("제목 : ");
 		String title = sc.nextLine();
@@ -35,17 +34,11 @@ public class ArticleController {
 			System.out.println("올바른 내용을 입력해주세요.");
 			return;
 		}
-		asv.write(title, body);
+		asv.write(conn, title, body);
 	}
 
-	public void list() {
+	public void list(Connection conn) {
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			String url = "jdbc:mysql://127.0.0.1:3306/JDBC_AM?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Seoul&useOldAliasMetadataBehavior=true&zeroDateTimeNehavior=convertToNull";
-
-			conn = DriverManager.getConnection(url, "root", "");
-			System.out.println("연결 성공!");
-
 			String sql = "SELECT * ";
 			sql += " FROM article";
 			sql += " ORDER BY id DESC;";
@@ -63,22 +56,12 @@ public class ArticleController {
 				System.out.printf("%d  /  %s  /  %s\n", id, title, regDate);
 			}
 
-		} catch (ClassNotFoundException e) {
-			System.out.println("드라이버 로딩 실패");
 		} catch (SQLException e) {
 			System.out.println("에러 : " + e);
 		} finally {
-
 			try {
 				if (rs != null && !rs.isClosed()) {
 					rs.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			try {
-				if (conn != null && !conn.isClosed()) {
-					conn.close();
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -94,7 +77,7 @@ public class ArticleController {
 
 	}
 
-	public void detail() {
+	public void detail(Connection conn) {
 		if (cmdDiv.length < 3) {
 			System.out.println("명령어를 똑바로 입력해라 인간.");
 			return;
@@ -108,12 +91,6 @@ public class ArticleController {
 		}
 
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			String url = "jdbc:mysql://127.0.0.1:3306/JDBC_AM?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Seoul&useOldAliasMetadataBehavior=true&zeroDateTimeNehavior=convertToNull";
-
-			conn = DriverManager.getConnection(url, "root", "");
-			System.out.println("연결 성공!");
-
 			String sql = "SELECT * ";
 			sql += " FROM article";
 			sql += " WHERE id = " + articleId + ";";
@@ -131,21 +108,12 @@ public class ArticleController {
 				System.out.println("body : " + rs.getString("body"));
 			}
 
-		} catch (ClassNotFoundException e) {
-			System.out.println("드라이버 로딩 실패");
 		} catch (SQLException e) {
 			System.out.println("에러 : " + e);
 		} finally {
 			try {
 				if (rs != null && !rs.isClosed()) {
 					rs.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			try {
-				if (conn != null && !conn.isClosed()) {
-					conn.close();
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -161,7 +129,7 @@ public class ArticleController {
 
 	}
 
-	public void modify() {
+	public void modify(Connection conn) {
 		if (cmdDiv.length < 3) {
 			System.out.println("명령어를 똑바로 입력해라 인간.");
 			return;
@@ -180,7 +148,7 @@ public class ArticleController {
 		System.out.print("(수정)내용 : ");
 		newBody = sc.nextLine().trim();
 
-		boolean status = asv.modify(articleId, newTitle, newBody);
+		boolean status = asv.modify(conn, articleId, newTitle, newBody);
 
 		if (status == false) {
 			System.out.println(articleId + "번 게시글은 없습니다.");
@@ -188,9 +156,10 @@ public class ArticleController {
 		}
 
 		System.out.println(articleId + "번 게시글이 수정되었습니다.");
+
 	}
 
-	public void remove() {
+	public void remove(Connection conn) {
 		if (cmdDiv.length < 3) {
 			System.out.println("명령어를 똑바로 입력해라 인간.");
 			return;
@@ -201,7 +170,7 @@ public class ArticleController {
 			System.out.println("정수를 똑바로 입력해라 인간.");
 			return;
 		}
-		boolean status = asv.remove(articleId);
+		boolean status = asv.remove(conn, articleId);
 
 		if (status == false) {
 			System.out.println(articleId + "번 게시글은 없습니다.");
@@ -209,5 +178,7 @@ public class ArticleController {
 		}
 
 		System.out.printf("%d번 게시글이 삭제되었습니다.\n", articleId);
+
 	}
+
 }
