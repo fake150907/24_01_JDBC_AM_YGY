@@ -1,15 +1,17 @@
-package com.KoreaIT.java.JDBCAM.test;
+package com.KoreaIT.java.JDBCAM.controller;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class JDBCInsertTest {
-	public static void main(String[] args) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
+public class ArticleService {
+	private Connection conn = null;
+	private PreparedStatement pstmt = null;
+	private ResultSet rs = null;
 
+	public void write(String title, String body) {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			String url = "jdbc:mysql://127.0.0.1:3306/JDBC_AM?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Seoul&useOldAliasMetadataBehavior=true&zeroDateTimeNehavior=convertToNull";
@@ -20,16 +22,24 @@ public class JDBCInsertTest {
 			String sql = "INSERT INTO article ";
 			sql += "SET regDate = NOW(),";
 			sql += "updateDate = NOW(),";
-			sql += "title = CONCAT('제목', RAND()),";
-			sql += "`body` = CONCAT('내용', RAND());";
-
-			System.out.println(sql);
+			sql += "title = '" + title + "',";
+			sql += "`body`= '" + body + "';";
 
 			pstmt = conn.prepareStatement(sql);
 
 			int affectedRow = pstmt.executeUpdate();
 
-			System.out.println("affectedRow : " + affectedRow);
+			System.out.println("affectedRow  : " + affectedRow);
+
+			sql = "SELECT * FROM article " + "ORDER BY id DESC " + "LIMIT 1;";
+
+			pstmt = conn.prepareStatement(sql);
+
+			rs = pstmt.executeQuery(sql);
+
+			while (rs.next()) {
+				System.out.println(rs.getInt("id") + "번 게시글이 등록되었습니다.");
+			}
 
 		} catch (ClassNotFoundException e) {
 			System.out.println("드라이버 로딩 실패");
@@ -51,6 +61,6 @@ public class JDBCInsertTest {
 				e.printStackTrace();
 			}
 		}
-
 	}
+
 }
