@@ -15,7 +15,7 @@ public class MemberController {
 		this.sc = sc;
 	}
 
-	public void dojoin() {
+	public void doJoin() {
 		System.out.println("==회원 가입==");
 		String loginId = null;
 		String loginPw = null;
@@ -101,6 +101,11 @@ public class MemberController {
 		int id = DBUtil.insert(conn, sql);
 
 		System.out.printf("%d번 회원이 가입 되었습니다. %s님 환영합니다.\n", id, name);
+	}
+
+	public void doLogin() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

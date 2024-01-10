@@ -90,8 +90,10 @@ public class App {
 		if (cmdBits[0].equals("member")) {
 			switch (cmdBits[1]) {
 			case "join":
-				mctr.dojoin();
+				mctr.doJoin();
 				break;
+			case "login":
+				mctr.doLogin();
 			default:
 				System.out.println("처리할 수 없는 명령어 입니다.");
 			}
