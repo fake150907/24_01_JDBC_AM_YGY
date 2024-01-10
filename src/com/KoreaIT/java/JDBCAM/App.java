@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 import com.KoreaIT.java.JDBCAM.controller.ArticleController;
+import com.KoreaIT.java.JDBCAM.controller.MemberController;
 
 public class App {
 
@@ -55,6 +56,7 @@ public class App {
 	private int doAction(Connection conn, Scanner sc, String cmd) {
 
 		ArticleController actr = new ArticleController(cmd);
+		MemberController mctr = new MemberController(conn, sc);
 
 		String[] cmdBits = cmd.split(" ");
 
@@ -62,24 +64,37 @@ public class App {
 			System.out.println("명령어를 똑바로 입력해라 인간.");
 			return 0;
 		}
-		switch (cmdBits[1]) {
-		case "write":
-			actr.write(conn);
-			break;
-		case "list":
-			actr.list(conn);
-			break;
-		case "detail":
-			actr.detail(conn);
-			break;
-		case "modify":
-			actr.modify(conn);
-			break;
-		case "delete":
-			actr.remove(conn);
-			break;
-		default:
-			System.out.println("처리할 수 없는 명령어입니다.");
+
+		if (cmdBits[0].equals("article")) {
+			switch (cmdBits[1]) {
+			case "write":
+				actr.write(conn);
+				break;
+			case "list":
+				actr.list(conn);
+				break;
+			case "detail":
+				actr.detail(conn);
+				break;
+			case "modify":
+				actr.modify(conn);
+				break;
+			case "delete":
+				actr.remove(conn);
+				break;
+			default:
+				System.out.println("처리할 수 없는 명령어입니다.");
+			}
+		}
+
+		if (cmdBits[0].equals("member")) {
+			switch (cmdBits[1]) {
+			case "join":
+				mctr.dojoin();
+				break;
+			default:
+				System.out.println("처리할 수 없는 명령어 입니다.");
+			}
 		}
 
 		return 0;
