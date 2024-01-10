@@ -105,7 +105,7 @@ public class MemberController {
 
 	public void doLogin() {
 		// TODO Auto-generated method stub
-		
+		System.out.println("일단 git push해야해서 급하다.");
 	}
 
 }
