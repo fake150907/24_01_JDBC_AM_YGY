@@ -1,11 +1,18 @@
 package com.KoreaIT.java.JDBCAM.controller;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+
+import com.KoreaIT.java.JDBCAM.Article;
+import com.KoreaIT.java.JDBCAM.service.ArticleService;
+import com.KoreaIT.java.JDBCAM.util.DBUtil;
+import com.KoreaIT.java.JDBCAM.util.SecSql;
 
 public class ArticleController {
 	private PreparedStatement pstmt = null;
@@ -30,49 +37,42 @@ public class ArticleController {
 		String title = sc.nextLine();
 		System.out.print("내용 : ");
 		String body = sc.nextLine();
+
 		if (title.length() < 1 || body.length() < 1) {
 			System.out.println("올바른 내용을 입력해주세요.");
 			return;
 		}
-		asv.write(conn, title, body);
+
+		int id = asv.write(conn, title, body);
+
+		System.out.println(id + "번 글이 생성되었습니다");
 	}
 
 	public void list(Connection conn) {
-		try {
-			String sql = "SELECT * ";
-			sql += " FROM article";
-			sql += " ORDER BY id DESC;";
+		System.out.println("==목록==");
 
-			pstmt = conn.prepareStatement(sql);
+		List<Article> articles = new ArrayList<>();
 
-			rs = pstmt.executeQuery(sql);
-			System.out.println("== article list ==");
+		SecSql sql = new SecSql();
 
-			while (rs.next()) {
-				int id = rs.getInt("id");
-				String regDate = rs.getString("regDate");
-				String title = rs.getString("title");
+		sql.append("SELECT *");
+		sql.append("FROM article");
+		sql.append("ORDER BY id DESC;");
 
-				System.out.printf("%d  /  %s  /  %s\n", id, title, regDate);
-			}
+		List<Map<String, Object>> articleListMap = DBUtil.selectRows(conn, sql);
 
-		} catch (SQLException e) {
-			System.out.println("에러 : " + e);
-		} finally {
-			try {
-				if (rs != null && !rs.isClosed()) {
-					rs.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			try {
-				if (pstmt != null && !pstmt.isClosed()) {
-					pstmt.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+		for (Map<String, Object> articleMap : articleListMap) {
+			articles.add(new Article(articleMap));
+		}
+
+		if (articles.size() == 0) {
+			System.out.println("게시글이 없습니다");
+			return;
+		}
+
+		System.out.println("  번호  /   제목  ");
+		for (Article article : articles) {
+			System.out.printf("  %d     /   %s   \n", article.getId(), article.getTitle());
 		}
 
 	}

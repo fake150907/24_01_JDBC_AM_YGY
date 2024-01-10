@@ -12,10 +12,11 @@ public class App {
 	public void run() {
 		System.out.println("==프로그램 시작==");
 		Scanner sc = new Scanner(System.in);
+
 		while (true) {
 			System.out.print("명령어 > ");
 			String cmd = sc.nextLine().trim();
-			ArticleController actr = new ArticleController(cmd);
+
 			Connection conn = null;
 
 			try {
@@ -29,55 +30,59 @@ public class App {
 			try {
 				conn = DriverManager.getConnection(url, "root", "");
 
+				int actionResult = doAction(conn, sc, cmd);
+
+				if (actionResult == -1) {
+					System.out.println("==프로그램 종료==");
+					sc.close();
+					break;
+				}
+
 			} catch (SQLException e) {
-				System.out.println("에러 : " + e);
+				System.out.println("에러 1 : " + e);
+			} finally {
+				try {
+					if (conn != null && !conn.isClosed()) {
+						conn.close();
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 			}
-
-			if (cmd.equals("exit")) {
-				break;
-			}
-
-			String[] cmdBits = cmd.split(" ");
-
-			if (cmdBits.length == 1) {
-				System.out.println("명령어를 똑바로 입력해라 인간.");
-				continue;
-			}
-			switch (cmdBits[1]) {
-			case "write":
-				actr.write(conn);
-				break;
-			case "list":
-				actr.list(conn);
-				break;
-			case "detail":
-				actr.detail(conn);
-				break;
-			case "modify":
-				actr.modify(conn);
-				break;
-			case "delete":
-				actr.remove(conn);
-				break;
-			default:
-				System.out.println("처리할 수 없는 명령어입니다.");
-			}
-			closeConn(conn);
-		}
-
-		System.out.println("==프로그램 종료==");
-
-		sc.close();
-	}
-
-	private void closeConn(Connection conn) {
-		try {
-			if (conn != null && !conn.isClosed()) {
-				conn.close();
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 	}
 
+	private int doAction(Connection conn, Scanner sc, String cmd) {
+
+		ArticleController actr = new ArticleController(cmd);
+
+		String[] cmdBits = cmd.split(" ");
+
+		if (cmdBits.length == 1) {
+			System.out.println("명령어를 똑바로 입력해라 인간.");
+			return 0;
+		}
+		switch (cmdBits[1]) {
+		case "write":
+			actr.write(conn);
+			break;
+		case "list":
+			actr.list(conn);
+			break;
+		case "detail":
+			actr.detail(conn);
+			break;
+		case "modify":
+			actr.modify(conn);
+			break;
+		case "delete":
+			actr.remove(conn);
+			break;
+		default:
+			System.out.println("처리할 수 없는 명령어입니다.");
+		}
+
+		return 0;
+
+	}
 }
