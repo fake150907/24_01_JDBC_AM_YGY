@@ -68,19 +68,19 @@ public class App {
 		if (cmdBits[0].equals("article")) {
 			switch (cmdBits[1]) {
 			case "write":
-				actr.write(conn);
+				actr.doWrite(conn);
 				break;
 			case "list":
-				actr.list(conn);
+				actr.showList(conn);
 				break;
 			case "detail":
-				actr.detail(conn);
+				actr.showDetail(conn);
 				break;
 			case "modify":
-				actr.modify(conn);
+				actr.doModify(conn);
 				break;
 			case "delete":
-				actr.remove(conn);
+				actr.doRemove(conn);
 				break;
 			default:
 				System.out.println("처리할 수 없는 명령어입니다.");
