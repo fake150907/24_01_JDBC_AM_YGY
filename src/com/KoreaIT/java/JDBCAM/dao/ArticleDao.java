@@ -1,31 +1,32 @@
 package com.KoreaIT.java.JDBCAM.dao;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.KoreaIT.java.JDBCAM.Article;
+import com.KoreaIT.java.JDBCAM.container.Container;
+import com.KoreaIT.java.JDBCAM.dto.Article;
 import com.KoreaIT.java.JDBCAM.util.DBUtil;
 import com.KoreaIT.java.JDBCAM.util.SecSql;
 
 public class ArticleDao {
 
-	public int doWrite(Connection conn, String title, String body) {
+	public int doWrite(String title, String body, String name) {
 		SecSql sql = new SecSql();
 
 		sql.append("INSERT INTO article");
 		sql.append("SET regDate = NOW(),");
 		sql.append("updateDate = NOW(),");
 		sql.append("title = ?,", title);
-		sql.append("`body`= ?;", body);
+		sql.append("`body`= ?,", body);
+		sql.append("`name`= ?;", name);
 
-		int id = DBUtil.insert(conn, sql);
+		int id = DBUtil.insert(Container.conn, sql);
 
 		return id;
 	}
 
-	public void doModify(Connection conn, int id, String newTitle, String newBody) {
+	public void doModify(int id, String newTitle, String newBody) {
 		SecSql sql = new SecSql();
 
 		sql.append("UPDATE article");
@@ -39,19 +40,19 @@ public class ArticleDao {
 
 		sql.append("WHERE id = ?;", id);
 
-		DBUtil.update(conn, sql);
+		DBUtil.update(Container.conn, sql);
 	}
 
-	public void doRemove(Connection conn, int id) {
+	public void doRemove(int id) {
 		SecSql sql = new SecSql();
 
 		sql.append("DELETE FROM article");
 		sql.append("WHERE id = ?;", id);
 
-		DBUtil.delete(conn, sql);
+		DBUtil.delete(Container.conn, sql);
 	}
 
-	public List<Article> showList(Connection conn) {
+	public List<Article> showList() {
 		List<Article> articles = new ArrayList<>();
 
 		SecSql sql = new SecSql();
@@ -60,7 +61,7 @@ public class ArticleDao {
 		sql.append("FROM article");
 		sql.append("ORDER BY id DESC;");
 
-		List<Map<String, Object>> articleListMap = DBUtil.selectRows(conn, sql);
+		List<Map<String, Object>> articleListMap = DBUtil.selectRows(Container.conn, sql);
 
 		for (Map<String, Object> articleMap : articleListMap) {
 			articles.add(new Article(articleMap));
@@ -69,14 +70,14 @@ public class ArticleDao {
 		return articles;
 	}
 
-	public Map<String, Object> foundArticleMap(Connection conn, int id) {
+	public Map<String, Object> foundArticleMap(int id) {
 		SecSql sql = new SecSql();
 
 		sql.append("SELECT *");
 		sql.append("FROM article");
 		sql.append("WHERE id = ?;", id);
 
-		Map<String, Object> articleMap = DBUtil.selectRow(conn, sql);
+		Map<String, Object> articleMap = DBUtil.selectRow(Container.conn, sql);
 
 		return articleMap;
 	}

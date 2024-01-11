@@ -5,14 +5,21 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Scanner;
 
+import com.KoreaIT.java.JDBCAM.container.Container;
 import com.KoreaIT.java.JDBCAM.controller.ArticleController;
 import com.KoreaIT.java.JDBCAM.controller.MemberController;
 
 public class App {
 
+	private Scanner sc;
+
+	public App() {
+		Container.init();
+		this.sc = Container.sc;
+	}
+
 	public void run() {
 		System.out.println("==프로그램 시작==");
-		Scanner sc = new Scanner(System.in);
 
 		while (true) {
 			System.out.print("명령어 > ");
@@ -31,7 +38,9 @@ public class App {
 			try {
 				conn = DriverManager.getConnection(url, "root", "");
 
-				int actionResult = action(conn, sc, cmd);
+				Container.conn = conn;
+
+				int actionResult = action(cmd);
 
 				if (actionResult == -1) {
 					System.out.println("==프로그램 종료==");
@@ -53,10 +62,10 @@ public class App {
 		}
 	}
 
-	private int action(Connection conn, Scanner sc, String cmd) {
+	private int action(String cmd) {
 
-		ArticleController actr = new ArticleController(cmd);
-		MemberController mctr = new MemberController(conn, sc);
+		MemberController mctr = Container.memberController;
+		ArticleController actr = Container.articleController;
 
 		String[] cmdBits = cmd.split(" ");
 
@@ -68,19 +77,28 @@ public class App {
 		if (cmdBits[0].equals("article")) {
 			switch (cmdBits[1]) {
 			case "write":
-				actr.doWrite(conn);
+				if (isLogined() == false) {
+					break;
+				}
+				actr.doWrite();
 				break;
 			case "list":
-				actr.showList(conn);
+				actr.showList();
 				break;
 			case "detail":
-				actr.showDetail(conn);
+				actr.showDetail(cmd);
 				break;
 			case "modify":
-				actr.doModify(conn);
+				if (isLogined() == false) {
+					break;
+				}
+				actr.doModify(cmd);
 				break;
 			case "delete":
-				actr.doRemove(conn);
+				if (isLogined() == false) {
+					break;
+				}
+				actr.doRemove(cmd);
 				break;
 			default:
 				System.out.println("처리할 수 없는 명령어입니다.");
@@ -93,13 +111,33 @@ public class App {
 				mctr.doJoin();
 				break;
 			case "login":
-				mctr.doLogin();
+				mctr.login();
+				break;
+			case "logout":
+				if (isLogined() == false) {
+					break;
+				}
+				mctr.logout();
+				break;
+			case "profile":
+				if (isLogined() == false) {
+					break;
+				}
+				mctr.showProfile();
+				break;
 			default:
 				System.out.println("처리할 수 없는 명령어 입니다.");
 			}
 		}
 
 		return 0;
+	}
 
+	private boolean isLogined() {
+		if (Container.session.isLogined() == false) {
+			System.out.println("로그인 후 이용해주세요.");
+			return false;
+		}
+		return true;
 	}
 }
