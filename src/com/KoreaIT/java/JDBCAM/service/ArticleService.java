@@ -8,32 +8,31 @@ import com.KoreaIT.java.JDBCAM.dao.ArticleDao;
 import com.KoreaIT.java.JDBCAM.dto.Article;
 
 public class ArticleService {
-	private ArticleDao acd;
+
+	private ArticleDao articleDao;
 
 	public ArticleService() {
-		this.acd = Container.articleDao;
+		this.articleDao = Container.articleDao;
 	}
 
-	public int doWrite(String title, String body, String name) {
-		int id = acd.doWrite(title, body, name);
-		return id;
+	public int doWrite(int memberId, String title, String body) {
+		return articleDao.doWrite(memberId,title, body);
 	}
 
-	public void doModify(int id, String newTitle, String newBody) {
-		acd.doModify(id, newTitle, newBody);
+	public Article getArticleById(int id) {
+		return articleDao.getArticleById(id);
 	}
 
-	public void doRemove(int id) {
-		acd.doRemove(id);
+	public void doDelete(int id) {
+		articleDao.doDelete(id);
 	}
 
-	public List<Article> showList() {
-		List<Article> articles = acd.showList();
-		return articles;
+	public void doUpdate(int id, String title, String body) {
+		articleDao.doUpdate(id, title, body);
 	}
 
-	public Map<String, Object> foundArticleMap(int id) {
-		Map<String, Object> aritlceMap = acd.foundArticleMap(id);
-		return aritlceMap;
+	public List<Article> getArticles() {
+		return articleDao.getArticles();
 	}
+
 }

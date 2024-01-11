@@ -1,6 +1,7 @@
 package com.KoreaIT.java.JDBCAM.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 public class Member {
@@ -29,6 +30,10 @@ public class Member {
 		this.loginId = (String) memberMap.get("loginId");
 		this.loginPw = (String) memberMap.get("loginPw");
 		this.name = (String) memberMap.get("name");
+	}
+
+	public Member(List<Map<String, Object>> membersMap) {
+		// TODO Auto-generated constructor stub
 	}
 
 	public String getLoginId() {
